@@ -10,55 +10,32 @@ import {
 import { getMe, deleteBook } from "../utils/API";
 import Auth from "../utils/auth";
 import { removeBookId } from "../utils/localStorage";
-import { useQuery, useLazyQuery } from "@apollo/client";
+import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import { GET_ME } from "../utils/queries";
+import { REMOVE_BOOK } from "../utils/mutations";
 
 const SavedBooks = () => {
-  // const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState({});
+  //const [userInfo, setUserInfo] = useState({});
   let a = Auth.getToken();
-  // debugger;
-  const { loading, data } = useQuery(GET_ME);
+
+  const { loading, data } = useQuery(GET_ME, {
+    onCompleted: (dt) => {
+      setUserData(dt.me);
+    },
+  });
+
+  const [getMe, { getMeData }] = useLazyQuery(GET_ME);
+  const [removeBook, { removeBookError, removeBookData }] =
+    useMutation(REMOVE_BOOK);
 
   // if data isn't here yet, say so
   if (loading) {
     return <h2>LOADING...</h2>;
   }
 
-  console.log("data", data);
-  //setUserData(data.me);
-  let userData = {};
-  if (data && data.me) {
-    userData = data.me;
-    //setUserData(data.me);
-  }
-  //const userData = data.me;
   // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = Object.keys(userData).length;
-
-  // useEffect(() => {
-  //   const getUserData = async () => {
-  //     try {
-  //       const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-  //       if (!token) {
-  //         return false;
-  //       }
-
-  //       // const response = await getMe(token);
-
-  //       // if (!response.ok) {
-  //       //   throw new Error("something went wrong!");
-  //       // }
-
-  //       // const user = await response.json();
-  //       setUserData(data.me);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   };
-
-  //   getUserData();
-  // }, [userDataLength]);
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
@@ -69,15 +46,12 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await deleteBook(bookId, token);
+      const { data } = await removeBook({
+        variables: { bookId: bookId },
+      });
 
-      if (!response.ok) {
-        throw new Error("something went wrong!");
-      }
-
-      const updatedUser = await response.json();
-      //setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
+      console.log("remove bookk", data);
+      setUserData(data.removeBook);
       removeBookId(bookId);
     } catch (err) {
       console.error(err);

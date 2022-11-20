@@ -8,7 +8,6 @@ const resolvers = {
       if (!context.user) {
         return null;
       }
-      console.log("fetching me");
       return await User.findById(context.user._id).populate("savedBooks");
     },
     savedBooks: async (parent, args, context) => {
@@ -51,10 +50,11 @@ const resolvers = {
           { _id: context.user._id },
           { $addToSet: { savedBooks: book } }
         );
-        return true;
+
+        return await User.findById(context.user._id).populate("savedBooks");
       } catch (err) {
         console.error("Error creating book", err);
-        return false;
+        return {};
       }
     },
     removeBook: async (parent, { bookId }, context) => {
@@ -64,10 +64,10 @@ const resolvers = {
           { _id: context.user._id },
           { $pull: { savedBooks: { bookId: bookId } } }
         );
-        return true;
+        return await User.findById(context.user._id).populate("savedBooks");
       } catch (err) {
         console.error("Error removing book", err);
-        return false;
+        return {};
       }
     },
   },
