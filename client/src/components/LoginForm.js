@@ -33,6 +33,7 @@ const LoginForm = () => {
         variables: { ...userFormData },
       });
 
+      debugger;
       Auth.login(data.login.token);
 
       setUserFormData({

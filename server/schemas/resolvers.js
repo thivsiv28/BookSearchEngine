@@ -4,8 +4,21 @@ const { AuthenticationError } = require("apollo-server-express");
 
 const resolvers = {
   Query: {
-    users: async () => {
-      return User.find({});
+    me: async (parent, args, context) => {
+      if (!context.user) {
+        return null;
+      }
+      console.log("fetching me");
+      return await User.findById(context.user._id).populate("savedBooks");
+    },
+    savedBooks: async (parent, args, context) => {
+      if (!context.user) {
+        return [];
+      }
+
+      const user = await User.findById(context.user._id).populate("savedBooks");
+
+      return user.savedBooks;
     },
   },
   Mutation: {
@@ -30,6 +43,32 @@ const resolvers = {
       const token = signToken(user);
 
       return { token, user };
+    },
+    addBook: async (parent, { book }, context) => {
+      console.log("Adding new book", book, context.user._id);
+      try {
+        await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { savedBooks: book } }
+        );
+        return true;
+      } catch (err) {
+        console.error("Error creating book", err);
+        return false;
+      }
+    },
+    removeBook: async (parent, { bookId }, context) => {
+      console.log("Remove book", bookId, context.user._id);
+      try {
+        await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId: bookId } } }
+        );
+        return true;
+      } catch (err) {
+        console.error("Error removing book", err);
+        return false;
+      }
     },
   },
 };

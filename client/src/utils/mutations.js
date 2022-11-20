@@ -23,3 +23,15 @@ export const ADD_USER = gql`
     }
   }
 `;
+
+export const ADD_BOOK = gql`
+  mutation AddBook($book: Book!) {
+    addBook(book: $book)
+  }
+`;
+
+export const REMOVE_BOOK = gql`
+  mutation RemoveBook($bookId: String!) {
+    removeBook(bookId: $bookId)
+  }
+`;

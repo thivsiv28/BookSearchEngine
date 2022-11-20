@@ -14,3 +14,34 @@ export const QUERY_USER = gql`
     }
   }
 `;
+
+export const SAVED_BOOKS = gql`
+  query SavedBooks {
+    savedBooks {
+      authors
+      description
+      bookId
+      image
+      link
+      title
+    }
+  }
+`;
+
+export const GET_ME = gql`
+  query Me {
+    me {
+      _id
+      username
+      email
+      savedBooks {
+        authors
+        description
+        bookId
+        image
+        link
+        title
+      }
+    }
+  }
+`;
