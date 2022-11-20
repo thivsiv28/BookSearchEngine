@@ -7,7 +7,6 @@ import {
   Button,
 } from "react-bootstrap";
 
-import { getMe, deleteBook } from "../utils/API";
 import Auth from "../utils/auth";
 import { removeBookId } from "../utils/localStorage";
 import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
@@ -17,17 +16,17 @@ import { REMOVE_BOOK } from "../utils/mutations";
 const SavedBooks = () => {
   const [userData, setUserData] = useState({});
   //const [userInfo, setUserInfo] = useState({});
-  let a = Auth.getToken();
-
   const { loading, data } = useQuery(GET_ME, {
     onCompleted: (dt) => {
       setUserData(dt.me);
     },
   });
 
-  const [getMe, { getMeData }] = useLazyQuery(GET_ME);
   const [removeBook, { removeBookError, removeBookData }] =
     useMutation(REMOVE_BOOK);
+  if (!Auth.loggedIn()) {
+    return <h1>Please login to save books</h1>;
+  }
 
   // if data isn't here yet, say so
   if (loading) {
