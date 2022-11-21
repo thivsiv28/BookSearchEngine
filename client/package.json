@@ -2,7 +2,6 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://salty-reef-14436.herokuapp.com",
   "dependencies": {
     "@apollo/client": "^3.5.8", 
     "@testing-library/jest-dom": "^4.2.4",
